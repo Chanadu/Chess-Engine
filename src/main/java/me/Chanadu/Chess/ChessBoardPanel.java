@@ -1,11 +1,16 @@
 package me.Chanadu.Chess;
 
 import com.github.bhlangonijr.chesslib.Board;
+import com.github.bhlangonijr.chesslib.Square;
+import com.github.bhlangonijr.chesslib.move.Move;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -23,11 +28,15 @@ public class ChessBoardPanel extends JPanel {
 	Image chessPiecesPNG;
 	Board board;
 	
-	HashMap<String, Image> pieces = new HashMap<>();
+	HashMap<String, Image> piecesStringToImage = new HashMap<>();
+	ArrayList<GUIPiece> pieces = new ArrayList<>();
 	
 	
-	ChessBoardPanel(Board board, JFrame mainFrame) {
-		this.board = board;
+	ChessBoardPanel(JFrame mainFrame) {
+		board = new Board();
+		board.doMove(new Move(Square.E2, Square.E4));
+		board.doMove(new Move(Square.D7, Square.D5));
+		board.doMove(new Move(Square.E4, Square.D5));
 		this.mainFrame = mainFrame;
 		
 		setPanel();
@@ -38,6 +47,7 @@ public class ChessBoardPanel extends JPanel {
 		
 		addPiecesToBoard();
 	}
+	
 	
 	//Copied From Stack Overflow
 	// https://stackoverflow.com/questions/13605248/java-converting-image-to-bufferedimage
@@ -72,29 +82,29 @@ public class ChessBoardPanel extends JPanel {
 	private void splitChessPiecesPNG() {
 		BufferedImage BIChessPieces = toBufferedImage(chessPiecesPNG);
 		
-		pieces.put("white_pawn", BIChessPieces.getSubimage(0, 0, 16, 16).getScaledInstance(80, 80,
+		piecesStringToImage.put("white_pawn", BIChessPieces.getSubimage(0, 0, 16, 16).getScaledInstance(80, 80,
 				Image.SCALE_SMOOTH));
-		pieces.put("white_knight", BIChessPieces.getSubimage(16, 0, 16, 16).getScaledInstance(80, 80,
+		piecesStringToImage.put("white_knight", BIChessPieces.getSubimage(16, 0, 16, 16).getScaledInstance(80, 80,
 				Image.SCALE_SMOOTH));
-		pieces.put("white_bishop", BIChessPieces.getSubimage(32, 0, 16, 16).getScaledInstance(80, 80,
+		piecesStringToImage.put("white_bishop", BIChessPieces.getSubimage(32, 0, 16, 16).getScaledInstance(80, 80,
 				Image.SCALE_SMOOTH));
-		pieces.put("white_rook", BIChessPieces.getSubimage(48, 0, 16, 16).getScaledInstance(80, 80,
+		piecesStringToImage.put("white_rook", BIChessPieces.getSubimage(48, 0, 16, 16).getScaledInstance(80, 80,
 				Image.SCALE_SMOOTH));
-		pieces.put("white_king", BIChessPieces.getSubimage(64, 0, 16, 16).getScaledInstance(80, 80,
+		piecesStringToImage.put("white_king", BIChessPieces.getSubimage(64, 0, 16, 16).getScaledInstance(80, 80,
 				Image.SCALE_SMOOTH));
-		pieces.put("white_queen", BIChessPieces.getSubimage(80, 0, 16, 16).getScaledInstance(80, 80,
+		piecesStringToImage.put("white_queen", BIChessPieces.getSubimage(80, 0, 16, 16).getScaledInstance(80, 80,
 				Image.SCALE_SMOOTH));
-		pieces.put("black_pawn", BIChessPieces.getSubimage(0, 16, 16, 16).getScaledInstance(80, 80,
+		piecesStringToImage.put("black_pawn", BIChessPieces.getSubimage(0, 16, 16, 16).getScaledInstance(80, 80,
 				Image.SCALE_SMOOTH));
-		pieces.put("black_knight", BIChessPieces.getSubimage(16, 16, 16, 16).getScaledInstance(80, 80,
+		piecesStringToImage.put("black_knight", BIChessPieces.getSubimage(16, 16, 16, 16).getScaledInstance(80, 80,
 				Image.SCALE_SMOOTH));
-		pieces.put("black_bishop", BIChessPieces.getSubimage(32, 16, 16, 16).getScaledInstance(80, 80,
+		piecesStringToImage.put("black_bishop", BIChessPieces.getSubimage(32, 16, 16, 16).getScaledInstance(80, 80,
 				Image.SCALE_SMOOTH));
-		pieces.put("black_rook", BIChessPieces.getSubimage(48, 16, 16, 16).getScaledInstance(80, 80,
+		piecesStringToImage.put("black_rook", BIChessPieces.getSubimage(48, 16, 16, 16).getScaledInstance(80, 80,
 				Image.SCALE_SMOOTH));
-		pieces.put("black_king", BIChessPieces.getSubimage(64, 16, 16, 16).getScaledInstance(80, 80,
+		piecesStringToImage.put("black_king", BIChessPieces.getSubimage(64, 16, 16, 16).getScaledInstance(80, 80,
 				Image.SCALE_SMOOTH));
-		pieces.put("black_queen", BIChessPieces.getSubimage(80, 16, 16, 16).getScaledInstance(80, 80,
+		piecesStringToImage.put("black_queen", BIChessPieces.getSubimage(80, 16, 16, 16).getScaledInstance(80, 80,
 				Image.SCALE_SMOOTH));
 	}
 	
@@ -111,11 +121,40 @@ public class ChessBoardPanel extends JPanel {
 		
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
-				squares[i][j] = new JPanel();
-				if ((i + j) % 2 == 0) color = lightColor;
-				else color = darkColor;
-				squares[i][j].setBackground(color);
-				squares[i][j].setPreferredSize(new Dimension(squareSize, squareSize));
+				JPanel currentSquare;
+				currentSquare = new JPanel();
+				if ((i + j) % 2 == 0) {
+					color = lightColor;
+				} else {
+					color = darkColor;
+				}
+				currentSquare.setBackground(color);
+				currentSquare.setPreferredSize(new Dimension(squareSize, squareSize));
+				int finalI = i;
+				int finalJ = j;
+				currentSquare.addMouseListener(new MouseAdapter() {
+					public void mousePressed(MouseEvent e) {
+						
+						if (currentSquare.getBackground().equals(new Color(59, 108, 73))) {
+							
+							for (GUIPiece piece : pieces) {
+								if (piece.isMoving) {
+									
+									currentSquare.add(piece);
+									board.doMove(new Move(piece.strToSquares[piece.rowNum][piece.colNum], piece.strToSquares[finalI][finalJ]));
+									piece.isMoving = false;
+									
+									piece.reDrawBoard();
+									removePieces();
+									addPiecesToBoard();
+									
+									break;
+								}
+							}
+						}
+					}
+				});
+				squares[i][j] = currentSquare;
 				this.add(squares[i][j]);
 			}
 		}
@@ -125,20 +164,19 @@ public class ChessBoardPanel extends JPanel {
 	public void addPiecesToBoard() {
 		int rowNum = 7;
 		int colNum = 0;
-		System.out.println(board.boardToArray().length);
 		for (int i = 0; i < board.boardToArray().length - 1; i++) {
 			
 			String pieceName = board.boardToArray()[i].toString().toLowerCase();
-			//System.out.println(pieceName);
 			
-			if (pieces.containsKey(pieceName)) {
-				//createPiece(pieceName, pieces.get(pieceName), rowNum, colNum);
-				GUIPiece piece = new GUIPiece(pieceName, new ImageIcon(pieces.get(pieceName)), this, board, rowNum, colNum);
+			if (piecesStringToImage.containsKey(pieceName)) {
+				GUIPiece piece = new GUIPiece(pieceName, new ImageIcon(piecesStringToImage.get(pieceName)), this, rowNum, colNum);
+				
+				pieces.add(piece);
 				
 				squares[rowNum][colNum].add(piece);
 			} else if (!pieceName.equals("none")) {
 				System.out.println(pieceName);
-				System.out.println(pieces.get(pieceName));
+				System.out.println(piecesStringToImage.get(pieceName));
 			}
 			
 			colNum++;
@@ -151,20 +189,28 @@ public class ChessBoardPanel extends JPanel {
 	}
 	
 	
+	public void removePieces() {
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				squares[i][j].removeAll();
+				squares[i][j].revalidate();
+				squares[i][j].repaint();
+			}
+		}
+	}
+	
+	
 	public JPanel[][] getSquares() {
 		return squares;
 	}
 	
 	
-	private void createPiece(String pieceName, Image pieceImage, int rowNum, int colNum) {
-		GUIPiece piece = new GUIPiece(pieceName, new ImageIcon(pieceImage), this, board, rowNum, colNum);
-		
-		squares[rowNum][colNum].add(piece);
-	}
-
-
-	private void addAI() {
-	
+	public ArrayList<GUIPiece> getPieces() {
+		return pieces;
 	}
 	
+	
+	public Board getBoard() {
+		return board;
+	}
 }

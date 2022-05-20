@@ -13,11 +13,8 @@ public class ChessGUI extends JFrame {
 	ChessBoardPanel boardPanel;
 	JPanel topPanel = new JPanel();
 	
-	Board board;
 	
-	
-	ChessGUI(Board board) {
-		this.board = board;
+	ChessGUI() {
 		setJFrame();
 		this.setVisible(true);
 	}
@@ -29,14 +26,13 @@ public class ChessGUI extends JFrame {
 		this.getContentPane().setBackground(backgroundColor);
 		this.setTitle("Chess");
 		this.setLocationRelativeTo(null);
-		this.setResizable(true);
+		this.setResizable(false);
 		this.setLayout(new BorderLayout());
 		
-		boardPanel = new ChessBoardPanel(board, this);
+		boardPanel = new ChessBoardPanel(this);
 		this.add(boardPanel, BorderLayout.CENTER);
 		this.add(topPanel, BorderLayout.NORTH);
 		this.add(topPanel, BorderLayout.SOUTH);
 	}
-	
 	
 }
