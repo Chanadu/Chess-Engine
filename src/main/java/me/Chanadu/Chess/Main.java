@@ -1,6 +1,5 @@
 package me.Chanadu.Chess;
 
-import com.github.bhlangonijr.chesslib.Board;
 
 public class Main {
 	

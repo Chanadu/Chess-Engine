@@ -1,13 +1,10 @@
 package me.Chanadu.Chess;
 
 import com.github.bhlangonijr.chesslib.Board;
-import com.github.bhlangonijr.chesslib.Square;
-import com.github.bhlangonijr.chesslib.move.Move;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.ArrayList;
@@ -19,12 +16,11 @@ public class ChessBoardPanel extends JPanel {
 	
 	JFrame mainFrame;
 	
-	Color backgroundColor = new Color(0, 0, 0);
-	Color lightColor = new Color(240, 217, 181);
-	Color darkColor = new Color(181, 136, 99);
+	private final Color backgroundColor = new Color(0, 0, 0);
+	private final Color lightColor = new Color(240, 217, 181);
+	private final Color darkColor = new Color(181, 136, 99);
 	
-	JPanel[][] squares = new JPanel[8][8];
-	int squareSize = 85;
+	BoardSquarePanel[][] squares = new BoardSquarePanel[8][8];
 	Image chessPiecesPNG;
 	Board board;
 	
@@ -34,9 +30,6 @@ public class ChessBoardPanel extends JPanel {
 	
 	ChessBoardPanel(JFrame mainFrame) {
 		board = new Board();
-		board.doMove(new Move(Square.E2, Square.E4));
-		board.doMove(new Move(Square.D7, Square.D5));
-		board.doMove(new Move(Square.E4, Square.D5));
 		this.mainFrame = mainFrame;
 		
 		setPanel();
@@ -112,7 +105,6 @@ public class ChessBoardPanel extends JPanel {
 	private void setPanel() {
 		this.setBackground(backgroundColor);
 		this.setLayout(new GridLayout(8, 8, 0, 0));
-		this.setPreferredSize(new Dimension(8 * squareSize, 8 * squareSize));
 	}
 	
 	
@@ -121,43 +113,40 @@ public class ChessBoardPanel extends JPanel {
 		
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
-				JPanel currentSquare;
-				currentSquare = new JPanel();
 				if ((i + j) % 2 == 0) {
 					color = lightColor;
 				} else {
 					color = darkColor;
 				}
-				currentSquare.setBackground(color);
-				currentSquare.setPreferredSize(new Dimension(squareSize, squareSize));
-				int finalI = i;
-				int finalJ = j;
-				currentSquare.addMouseListener(new MouseAdapter() {
-					public void mousePressed(MouseEvent e) {
-						
-						if (currentSquare.getBackground().equals(new Color(59, 108, 73))) {
-							
-							for (GUIPiece piece : pieces) {
-								if (piece.isMoving) {
-									
-									currentSquare.add(piece);
-									board.doMove(new Move(piece.strToSquares[piece.rowNum][piece.colNum], piece.strToSquares[finalI][finalJ]));
-									piece.isMoving = false;
-									
-									piece.reDrawBoard();
-									removePieces();
-									addPiecesToBoard();
-									
-									break;
-								}
-							}
-						}
-					}
-				});
-				squares[i][j] = currentSquare;
+				
+				BoardSquarePanel square = new BoardSquarePanel(i, j, color, this);
+				
+				squares[i][j] = square;
 				this.add(squares[i][j]);
 			}
 		}
+	}
+	
+	
+	public void reDrawBoard() {
+		Color color;
+		
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				if ((i + j) % 2 == 0) {
+					color = lightColor;
+				} else {
+					color = darkColor;
+				}
+				
+				squares[i][j].setBackground(color);
+				squares[i][j].setBorder(new EmptyBorder(0, 0, 0, 0));
+				squares[i][j].setMoving(false);
+				
+			}
+		}
+		
+		
 	}
 	
 	
@@ -169,11 +158,11 @@ public class ChessBoardPanel extends JPanel {
 			String pieceName = board.boardToArray()[i].toString().toLowerCase();
 			
 			if (piecesStringToImage.containsKey(pieceName)) {
-				GUIPiece piece = new GUIPiece(pieceName, new ImageIcon(piecesStringToImage.get(pieceName)), this, rowNum, colNum);
-				
+				GUIPiece piece = new GUIPiece( new ImageIcon(piecesStringToImage.get(pieceName)));
 				pieces.add(piece);
-				
 				squares[rowNum][colNum].add(piece);
+				squares[rowNum][colNum].revalidate();
+				squares[rowNum][colNum].repaint();
 			} else if (!pieceName.equals("none")) {
 				System.out.println(pieceName);
 				System.out.println(piecesStringToImage.get(pieceName));
@@ -185,6 +174,7 @@ public class ChessBoardPanel extends JPanel {
 				rowNum--;
 				colNum = 0;
 			}
+			
 		}
 	}
 	
@@ -193,24 +183,24 @@ public class ChessBoardPanel extends JPanel {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				squares[i][j].removeAll();
-				squares[i][j].revalidate();
-				squares[i][j].repaint();
 			}
 		}
 	}
 	
 	
-	public JPanel[][] getSquares() {
+	public BoardSquarePanel[][] getSquares() {
 		return squares;
-	}
-	
-	
-	public ArrayList<GUIPiece> getPieces() {
-		return pieces;
 	}
 	
 	
 	public Board getBoard() {
 		return board;
 	}
+	
+	
+	public HashMap<String, Image> getPiecesStringToImage() {
+		return piecesStringToImage;
+	}
+
+	
 }

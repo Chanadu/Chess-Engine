@@ -11,8 +11,9 @@ public class ChessGUI extends JFrame {
 	Color backgroundColor = new Color(206, 1, 1);
 	
 	ChessBoardPanel boardPanel;
-	JPanel topPanel = new JPanel();
+	UndoPanel undoPanel;
 	
+	Board board = new Board();
 	
 	ChessGUI() {
 		setJFrame();
@@ -30,9 +31,9 @@ public class ChessGUI extends JFrame {
 		this.setLayout(new BorderLayout());
 		
 		boardPanel = new ChessBoardPanel(this);
+		undoPanel = new UndoPanel(boardPanel);
 		this.add(boardPanel, BorderLayout.CENTER);
-		this.add(topPanel, BorderLayout.NORTH);
-		this.add(topPanel, BorderLayout.SOUTH);
+		this.add(undoPanel, BorderLayout.SOUTH);
 	}
 	
 }
