@@ -1,7 +1,5 @@
 package me.Chanadu.Chess;
 
-import com.github.bhlangonijr.chesslib.Board;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -12,8 +10,6 @@ public class ChessGUI extends JFrame {
 	
 	ChessBoardPanel boardPanel;
 	UndoPanel undoPanel;
-	
-	Board board = new Board();
 	
 	ChessGUI() {
 		setJFrame();

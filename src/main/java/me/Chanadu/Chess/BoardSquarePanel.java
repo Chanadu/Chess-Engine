@@ -2,6 +2,7 @@ package me.Chanadu.Chess;
 
 import com.github.bhlangonijr.chesslib.Board;
 import com.github.bhlangonijr.chesslib.Piece;
+import com.github.bhlangonijr.chesslib.Side;
 import com.github.bhlangonijr.chesslib.Square;
 import com.github.bhlangonijr.chesslib.move.Move;
 
@@ -46,7 +47,7 @@ public class BoardSquarePanel extends JPanel {
 	Color movingSquareColor = new Color(149, 207, 167);
 	
 	
-	public BoardSquarePanel( int x, int y, Color color, ChessBoardPanel boardPanel) {
+	public BoardSquarePanel(int x, int y, Color color, ChessBoardPanel boardPanel) {
 		this.boardPanel = boardPanel;
 		xPos = x;
 		yPos = y;
@@ -69,26 +70,48 @@ public class BoardSquarePanel extends JPanel {
 					for (int i = 0; i < 8; i++) {
 						for (int j = 0; j < 8; j++) {
 							if (boardPanel.getSquares()[i][j].getMoving()) {
-								BoardSquarePanel movingSquare = boardPanel.getSquares()[i][j];
 								Board board = boardPanel.getBoard();
 								Piece piece = board.getPiece(strToSquares[i][j]);
 								String pieceName = piece.name().toLowerCase();
-								Image pieceImage = boardPanel.getPiecesStringToImage().get(pieceName);
 								
 								board.doMove(new Move(strToSquares[i][j],
 										strToSquares[xPos][yPos]));
 								
-								movingSquare.removeAll();
-								removeAll();
+								reloadSquare(i, j);
+								reloadSquare(xPos, yPos);
 								
-								if (!pieceName.equalsIgnoreCase("none")) {
-									add(new GUIPiece(new ImageIcon(pieceImage)));
+								//En-Passant
+								if (pieceName.contains("pawn")) {
+									if (j != 0) {
+										reloadSquare(i, j - 1);
+									}
+									if (j != 7) {
+										reloadSquare(i, j + 1);
+									}
 								}
 								
-								revalidate();
-								repaint();
-								movingSquare.revalidate();
-								movingSquare.repaint();
+								//Castling
+								if (board.getContext().isCastleMove(new Move(strToSquares[i][j], strToSquares[xPos][yPos]))) {
+									int x = 0;
+									if (board.getSideToMove().flip().equals(Side.WHITE)) {
+										x = 7;
+									}
+									if (board.getContext().isKingSideCastle(new Move(strToSquares[i][j],
+											strToSquares[xPos][yPos])) && board.getSideToMove().flip().equals(Side.WHITE)) {
+										reloadSquare(x, 5);
+										reloadSquare(x, 7);
+									} else if (board.getSideToMove().flip().equals(Side.WHITE)) {
+										reloadSquare(x, 0);
+										reloadSquare(x, 3);
+									} else if (board.getSideToMove().flip().equals(Side.BLACK) && board.getContext().isKingSideCastle(new Move(strToSquares[i][j],
+											strToSquares[xPos][yPos]))) {
+										reloadSquare(x, 5);
+										reloadSquare(x, 7);
+									} else if (board.getSideToMove().flip().equals(Side.BLACK)) {
+										reloadSquare(x, 0);
+										reloadSquare(x, 3);
+									}
+								}
 								
 								boardPanel.getSquares()[i][j].isMoving = false;
 								boardPanel.reDrawBoard();
@@ -96,9 +119,7 @@ public class BoardSquarePanel extends JPanel {
 							}
 						}
 					}
-				}
-				
-				else if (getBackground().equals(startingColor)) {
+				} else if (getBackground().equals(startingColor)) {
 					
 					boardPanel.reDrawBoard();
 					
@@ -109,7 +130,7 @@ public class BoardSquarePanel extends JPanel {
 					List<Move> legalMoves = boardPanel.getBoard().legalMoves();
 					
 					setBackground(movingSquareColor);
- 				
+					
 					for (int i = 0; i < 8; i++) {
 						for (int j = 0; j < 8; j++) {
 							if (legalMoves.contains(new Move(currentSquareAN, strToSquares[i][j]))) {
@@ -122,6 +143,21 @@ public class BoardSquarePanel extends JPanel {
 				}
 			}
 		});
+	}
+	
+	
+	private void reloadSquare(int i, int j) {
+		BoardSquarePanel squarePanel = boardPanel.getSquares()[i][j];
+		squarePanel.removeAll();
+		String pieceName = boardPanel.getBoard().getPiece(strToSquares[i][j]).name().toLowerCase();
+		//System.out.println(pieceName);
+		if (boardPanel.getPiecesStringToImage().containsKey(pieceName)) {
+			GUIPiece piece = new GUIPiece(new ImageIcon(boardPanel.getPiecesStringToImage().get(pieceName)));
+			boardPanel.getPieces().add(piece);
+			squarePanel.add(piece);
+			squarePanel.revalidate();
+			squarePanel.repaint();
+		}
 	}
 	
 	

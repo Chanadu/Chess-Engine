@@ -30,7 +30,15 @@ public class ChessBoardPanel extends JPanel {
 	
 	ChessBoardPanel(JFrame mainFrame) {
 		board = new Board();
+		board.doMove("e4");
+		board.doMove("e5");
+		board.doMove("Nf3");
+		board.doMove("Nc6");
+		board.doMove("Bc4");
+		board.doMove("Nf6");
+		
 		this.mainFrame = mainFrame;
+		
 		
 		setPanel();
 		createBoard();
@@ -156,9 +164,8 @@ public class ChessBoardPanel extends JPanel {
 		for (int i = 0; i < board.boardToArray().length - 1; i++) {
 			
 			String pieceName = board.boardToArray()[i].toString().toLowerCase();
-			
 			if (piecesStringToImage.containsKey(pieceName)) {
-				GUIPiece piece = new GUIPiece( new ImageIcon(piecesStringToImage.get(pieceName)));
+				GUIPiece piece = new GUIPiece(new ImageIcon(piecesStringToImage.get(pieceName)));
 				pieces.add(piece);
 				squares[rowNum][colNum].add(piece);
 				squares[rowNum][colNum].revalidate();
@@ -201,6 +208,9 @@ public class ChessBoardPanel extends JPanel {
 	public HashMap<String, Image> getPiecesStringToImage() {
 		return piecesStringToImage;
 	}
-
 	
+	
+	public ArrayList<GUIPiece> getPieces() {
+		return pieces;
+	}
 }
