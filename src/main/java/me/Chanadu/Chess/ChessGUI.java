@@ -10,6 +10,7 @@ public class ChessGUI extends JFrame {
 	
 	ChessBoardPanel boardPanel;
 	UndoPanel undoPanel;
+	TitlePanel titlePanel;
 	
 	ChessGUI() {
 		setJFrame();
@@ -30,6 +31,7 @@ public class ChessGUI extends JFrame {
 		undoPanel = new UndoPanel(boardPanel);
 		this.add(boardPanel, BorderLayout.CENTER);
 		this.add(undoPanel, BorderLayout.SOUTH);
+		this.add(titlePanel, BorderLayout.NORTH);
 	}
 	
 }
