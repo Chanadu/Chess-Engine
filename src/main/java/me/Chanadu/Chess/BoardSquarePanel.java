@@ -20,35 +20,17 @@ public class BoardSquarePanel extends JPanel {
 	
 	boolean isMoving = false;
 	
-	Square[][] strToSquares = {
-			{
-					Square.A8, Square.B8, Square.C8, Square.D8, Square.E8, Square.F8, Square.G8, Square.H8
-			}, {
-			Square.A7, Square.B7, Square.C7, Square.D7, Square.E7, Square.F7, Square.G7, Square.H7
-	}, {
-			Square.A6, Square.B6, Square.C6, Square.D6, Square.E6, Square.F6, Square.G6, Square.H6
-	}, {
-			Square.A5, Square.B5, Square.C5, Square.D5, Square.E5, Square.F5, Square.G5, Square.H5
-	}, {
-			Square.A4, Square.B4, Square.C4, Square.D4, Square.E4, Square.F4, Square.G4, Square.H4
-	}, {
-			Square.A3, Square.B3, Square.C3, Square.D3, Square.E3, Square.F3, Square.G3, Square.H3
-	}, {
-			Square.A2, Square.B2, Square.C2, Square.D2, Square.E2, Square.F2, Square.G2, Square.H2
-	}, {
-			Square.A1, Square.B1, Square.C1, Square.D1, Square.E1, Square.F1, Square.G1, Square.H1
-	}
-	};
-	
 	Color movableSquareColor = new Color(59, 108, 73);
 	Color movingSquareColor = new Color(149, 207, 167);
 	
+	Square[][] strToSquares;
 	
 	public BoardSquarePanel(int x, int y, Color color, ChessBoardPanel boardPanel) {
 		this.boardPanel = boardPanel;
 		xPos = x;
 		yPos = y;
 		startingColor = color;
+		strToSquares = boardPanel.getStrToSquares();
 		
 		setLayout(new BorderLayout());
 		setBackground(color);
@@ -75,16 +57,31 @@ public class BoardSquarePanel extends JPanel {
 								board.doMove(new Move(strToSquares[i][j], strToSquares[xPos][yPos]));
 								
 								//Reload Moving and toMove Square
-								reloadSquare(i, j);
-								reloadSquare(xPos, yPos);
+								boardPanel.reloadSquare(i, j);
+								boardPanel.reloadSquare(xPos, yPos);
 								
 								//En-Passant
 								if (pieceName.contains("pawn")) {
 									if (j != 0) {
-										reloadSquare(i, j - 1);
+										boardPanel.reloadSquare(i, j - 1);
 									}
 									if (j != 7) {
-										reloadSquare(i, j + 1);
+										boardPanel.reloadSquare(i, j + 1);
+									}
+								}
+								
+								//Check for En-Passant in the Board
+								if (board.getPiece(strToSquares[xPos][yPos]) != null) {
+									if (board.getPiece(strToSquares[xPos][yPos]).name().contains("pawn")) {
+										if (board.getPiece(strToSquares[xPos][yPos]).getPieceSide().equals(Side.BLACK)) {
+											if (xPos == 2) {
+												boardPanel.reloadSquare(xPos, yPos + 1);
+											}
+										} else {
+											if (xPos == 5) {
+												boardPanel.reloadSquare(xPos, yPos - 1);
+											}
+										}
 									}
 								}
 								
@@ -172,6 +169,7 @@ public class BoardSquarePanel extends JPanel {
 	
 	private void castlingMovement(int i, int j) {
 		Board board = boardPanel.getBoard();
+		
 		if (board.getContext().isCastleMove(new Move(strToSquares[i][j], strToSquares[xPos][yPos]))) {
 			int x = 0;
 			if (board.getSideToMove().flip().equals(Side.WHITE)) {
@@ -237,6 +235,19 @@ public class BoardSquarePanel extends JPanel {
 		Board board = boardPanel.getBoard();
 		
 		board.isMated();
+		
+		//Set the Title of the titlePanel if the board is mated or stalemate
+		if (board.isMated()) {
+			if (board.getSideToMove().equals(Side.WHITE)) {
+				boardPanel.getTitlePanel().setTitle("Black Wins!");
+			} else {
+				boardPanel.getTitlePanel().setTitle("White Wins!");
+			}
+		} else if (board.isStaleMate()) {
+			boardPanel.getTitlePanel().setTitle("Stalemate!");
+		}
+		
+		
 	}
 	
 	

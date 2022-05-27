@@ -19,15 +19,18 @@ public class ChessGUI extends JFrame {
 	
 	
 	private void setJFrame() {
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setSize(800, 800);
-		this.getContentPane().setBackground(backgroundColor);
+		
+		//Set up the JFrame
 		this.setTitle("Chess");
+		this.setSize(800, 800);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setLayout(new BorderLayout());
+		this.setBackground(backgroundColor);
 		this.setLocationRelativeTo(null);
 		this.setResizable(false);
-		this.setLayout(new BorderLayout());
 		
-		boardPanel = new ChessBoardPanel(this);
+		titlePanel = new TitlePanel();
+		boardPanel = new ChessBoardPanel(this, titlePanel);
 		undoPanel = new UndoPanel(boardPanel);
 		this.add(boardPanel, BorderLayout.CENTER);
 		this.add(undoPanel, BorderLayout.SOUTH);

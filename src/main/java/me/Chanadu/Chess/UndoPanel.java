@@ -1,6 +1,7 @@
 package me.Chanadu.Chess;
 
 import javax.swing.*;
+import java.util.function.Function;
 
 public class UndoPanel extends JPanel {
 	

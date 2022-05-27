@@ -1,6 +1,7 @@
 package me.Chanadu.Chess;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class TitlePanel extends JPanel {
 	
@@ -8,21 +9,20 @@ public class TitlePanel extends JPanel {
 	
 	
 	TitlePanel() {
-	
+		setUpTitleLabel();
+		add(title);
 	}
 	
 	
 	private void setUpTitleLabel() {
-	
+		title.setText("Chess");
+		title.setFont(new Font("Arial", Font.BOLD, 50));
+		title.setHorizontalAlignment(JLabel.CENTER);
+		title.setVerticalAlignment(JLabel.CENTER);
 	}
 	
 	
-	public JLabel getTitle() {
-		return title;
-	}
-	
-	
-	public void setTitle(JLabel title) {
-		this.title = title;
+	public void setTitle(String text) {
+		title.setText(text);
 	}
 }

@@ -1,6 +1,7 @@
 package me.Chanadu.Chess;
 
 import com.github.bhlangonijr.chesslib.Board;
+import com.github.bhlangonijr.chesslib.Square;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -14,12 +15,11 @@ import java.util.Objects;
 public class ChessBoardPanel extends JPanel {
 	
 	
-	JFrame mainFrame;
-	
 	private final Color backgroundColor = new Color(0, 0, 0);
 	private final Color lightColor = new Color(240, 217, 181);
 	private final Color darkColor = new Color(181, 136, 99);
-	
+	JFrame mainFrame;
+	TitlePanel titlePanel;
 	BoardSquarePanel[][] squares = new BoardSquarePanel[8][8];
 	Image chessPiecesPNG;
 	Board board;
@@ -27,18 +27,33 @@ public class ChessBoardPanel extends JPanel {
 	HashMap<String, Image> piecesStringToImage = new HashMap<>();
 	ArrayList<GUIPiece> pieces = new ArrayList<>();
 	
+	Square[][] strToSquares = {
+			{
+					Square.A8, Square.B8, Square.C8, Square.D8, Square.E8, Square.F8, Square.G8, Square.H8
+			}, {
+			Square.A7, Square.B7, Square.C7, Square.D7, Square.E7, Square.F7, Square.G7, Square.H7
+	}, {
+			Square.A6, Square.B6, Square.C6, Square.D6, Square.E6, Square.F6, Square.G6, Square.H6
+	}, {
+			Square.A5, Square.B5, Square.C5, Square.D5, Square.E5, Square.F5, Square.G5, Square.H5
+	}, {
+			Square.A4, Square.B4, Square.C4, Square.D4, Square.E4, Square.F4, Square.G4, Square.H4
+	}, {
+			Square.A3, Square.B3, Square.C3, Square.D3, Square.E3, Square.F3, Square.G3, Square.H3
+	}, {
+			Square.A2, Square.B2, Square.C2, Square.D2, Square.E2, Square.F2, Square.G2, Square.H2
+	}, {
+			Square.A1, Square.B1, Square.C1, Square.D1, Square.E1, Square.F1, Square.G1, Square.H1
+	}
+	};
 	
-	ChessBoardPanel(JFrame mainFrame) {
+	
+	ChessBoardPanel(JFrame mainFrame, TitlePanel titlePanel) {
+		this.titlePanel = titlePanel;
+		
 		board = new Board();
-		board.doMove("e4");
-		board.doMove("e5");
-		board.doMove("Nf3");
-		board.doMove("Nc6");
-		board.doMove("Bc4");
-		board.doMove("Nf6");
 		
 		this.mainFrame = mainFrame;
-		
 		
 		setPanel();
 		createBoard();
@@ -159,29 +174,24 @@ public class ChessBoardPanel extends JPanel {
 	
 	
 	public void addPiecesToBoard() {
-		int rowNum = 7;
-		int colNum = 0;
-		for (int i = 0; i < board.boardToArray().length - 1; i++) {
-			
-			String pieceName = board.boardToArray()[i].toString().toLowerCase();
-			if (piecesStringToImage.containsKey(pieceName)) {
-				GUIPiece piece = new GUIPiece(new ImageIcon(piecesStringToImage.get(pieceName)));
-				pieces.add(piece);
-				squares[rowNum][colNum].add(piece);
-				squares[rowNum][colNum].revalidate();
-				squares[rowNum][colNum].repaint();
-			} else if (!pieceName.equals("none")) {
-				System.out.println(pieceName);
-				System.out.println(piecesStringToImage.get(pieceName));
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				reloadSquare(i, j);
 			}
-			
-			colNum++;
-			if (colNum >= 8) {
-				
-				rowNum--;
-				colNum = 0;
-			}
-			
+		}
+	}
+	
+	
+	public void reloadSquare(int i, int j) {
+		BoardSquarePanel squarePanel = squares[i][j];
+		squarePanel.removeAll();
+		String pieceName = board.getPiece(strToSquares[i][j]).name().toLowerCase();
+		if (piecesStringToImage.containsKey(pieceName)) {
+			GUIPiece piece = new GUIPiece(new ImageIcon(piecesStringToImage.get(pieceName)));
+			pieces.add(piece);
+			squarePanel.add(piece);
+			squarePanel.revalidate();
+			squarePanel.repaint();
 		}
 	}
 	
@@ -212,5 +222,15 @@ public class ChessBoardPanel extends JPanel {
 	
 	public ArrayList<GUIPiece> getPieces() {
 		return pieces;
+	}
+	
+	
+	public TitlePanel getTitlePanel() {
+		return titlePanel;
+	}
+	
+	
+	public Square[][] getStrToSquares() {
+		return strToSquares;
 	}
 }
